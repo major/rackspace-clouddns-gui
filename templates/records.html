@@ -1,0 +1,49 @@
+<table class="table table-condensed table-striped">
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Data</th>
+        <th>Priority</th>
+        <th>TTL</th>
+        <th>&nbsp;</th>
+    </tr>
+    </thead>
+    <tbody>
+{% for record in records %}
+    <tr>
+        <form method="post" action="/domains/{{domainname}}/{{record.id}}/update">
+        <td>
+            {{ record.id }}
+        </td>
+        <td>
+            {{ record.type }}
+        </td>
+        <td>
+            {{ record.name }}
+        </td>
+        <td>
+            <input type="text" name="data" value="{{ record.data }}" class="span3">
+        </td>
+        {% if record.type == "MX" %}
+        <td>
+            {{ record.priority }}
+        </td>
+        {% else %}
+        <td>
+            -
+        </td>
+        {% endif %}
+        <td>
+            <input type="text" name="ttl" value="{{ record.ttl }}" class="span1">
+        </td>
+        <td>
+            <button class="btn btn-warning" type="submit">Update</button>
+            <a href="/domains/{{domainname}}/{{record.id}}/delete" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete?');">Delete</a>
+        </td>
+        </form>
+    </tr>
+{% endfor %}
+    </tbody>
+</table>
