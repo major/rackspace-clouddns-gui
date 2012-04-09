@@ -26,6 +26,7 @@ app.secret_key = 'reallysecret'
 # Flip this to false if you share a running app with anyone else
 app.debug = True
 
+
 @app.before_request
 def connect_clouddns():
     """Connect to Rackspace auth and share the connection handler globally"""
@@ -36,14 +37,15 @@ def connect_clouddns():
 
     # Connect to Rackspace auth
     g.raxdns = connection.Connection(
-        creds['username'],creds['apikey'])
+        creds['username'], creds['apikey'])
+
 
 @app.route("/")
 @app.route("/domains")
 @app.route("/domains/<domainname>")
 def index(domainname=None):
     """All of the HTML for the entire app flows through here"""
-    
+
     # Pick up a list of domains from the API
     domainlist = g.raxdns.get_domains()
 
@@ -61,6 +63,7 @@ def index(domainname=None):
     return render_template('index.html', domainname=domainname,
         domainlist=domainlist, records=records)
 
+
 @app.route("/domains/add", methods=['POST'])
 def add_domain():
     """Handles adding domains"""
@@ -76,6 +79,7 @@ def add_domain():
     flash("Domain added: %s" % domain)
 
     return redirect("/domains/%s" % domain)
+
 
 @app.route("/domains/delete", methods=['POST'])
 def delete_domain():
@@ -99,6 +103,7 @@ def delete_domain():
     flash("Domain deleted: %s" % domain_name)
 
     return redirect("/domains")
+
 
 @app.route("/domains/<domainname>/add_record", methods=['POST'])
 def add_record(domainname=None):
@@ -129,6 +134,7 @@ def add_record(domainname=None):
 
     return redirect("/domains/%s" % domainname)
 
+
 @app.route("/domains/<domainname>/<recordid>/update", methods=['POST'])
 def update_record(domainname=None, recordid=None):
     """Handles record updates"""
@@ -148,6 +154,7 @@ def update_record(domainname=None, recordid=None):
     flash("Record updated")
 
     return redirect("/domains/%s" % domainname)
+
 
 @app.route("/domains/<domainname>/<recordid>/delete")
 def delete_record(domainname=None, recordid=None):
