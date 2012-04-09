@@ -50,7 +50,7 @@ def index(domainname=None):
     domainlist = g.raxdns.get_domains()
 
     # If no domainname was specified in the URI, we need to pick up the records
-    if domainname != None:
+    if not domainname:
         domain = g.raxdns.get_domain(name=domainname)
         records = domain.get_records()
     else:
@@ -90,7 +90,7 @@ def delete_domain():
     domain_name = request.form['domain']
 
     # Did the user submit the confirmation text properly?
-    if confirmation == None or confirmation != 'REALLYDELETE':
+    if not confirmation or confirmation != 'REALLYDELETE':
         flash("Domain deletion canceled. Please type the confirmation string.")
         return redirect("/domains/%s" % domain_name)
 
