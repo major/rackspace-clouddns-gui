@@ -17,6 +17,7 @@
 from clouddns import connection
 from flask import Flask, render_template, g, request, flash, redirect
 import json
+import re
 
 app = Flask(__name__)
 
@@ -112,22 +113,31 @@ def add_record(domainname=None):
     # Get the domain from the API
     domain = g.raxdns.get_domain(name=domainname)
 
+    # Get the form data out of an immutable dict
+    formvars = {x:y[0] for x, y in dict(request.form).iteritems()}
+
+    # Does the data from the form end with the domainname? If it doesn't the 
+    # user probably entered a partial name rather than a FQDN. Append
+    # the domain name to ensure that the API doesn't get grumpy.
+    if re.match("%s$" % domainname, formvars['name']) == None:
+        formvars['name'] = "%s.%s" % (formvars['name'], domainname)
+
     # We'll have a priority field for MX/SRV records
-    if request.form['type'] in ['MX', 'SRV']:
+    if formvars['type'] in ['MX', 'SRV']:
         domain.create_record(
-            request.form['name'],
-            request.form['data'],
-            request.form['type'],
-            ttl=request.form['ttl'],
-            priority=request.form['priority'])
+            formvars['name'],
+            formvars['data'],
+            formvars['type'],
+            ttl=formvars['ttl'],
+            priority=formvars['priority'])
 
     # Submit without priority for anything else
     else:
         domain.create_record(
-            request.form['name'],
-            request.form['data'],
-            request.form['type'],
-            ttl=request.form['ttl'])
+            formvars['name'],
+            formvars['data'],
+            formvars['type'],
+            ttl=formvars['ttl'])
 
     # Flash a friendly message
     flash("Record added")
