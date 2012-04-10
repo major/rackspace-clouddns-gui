@@ -6,6 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="/static/css/bootstrap.css" rel="stylesheet">
     <link href="/static/css/bootstrap-responsive.css" rel="stylesheet">
+    <script type="text/javascript" src="/static/js/jquery.js"></script>
+    <script type="text/javascript" src="/static/js/bootstrap-dropdown.js"></script>
     <style type="text/css">
       body {
         padding-top: 60px;
@@ -30,23 +32,39 @@
             <span class="icon-bar"></span>
           </a>
           <a class="brand" href="#">Rackspace Cloud DNS GUI</a>
-          <div class="nav-collapse">
+          <div class="nav">
+            <li class="dropdown" id="menu1">
+              <a class="dropdown-toggle" data-toggle="dropdown" href="#menu1">
+                Active Domains
+                <b class="caret"></b>
+              </a>
+              <ul class="dropdown-menu">
+                {% for domain in domainlist %}
+                <li><a href="/domains/{{domain}}">{{domain}}</a></li>
+                {% else %}
+                <li><a href="/">No domains</a></li>
+                {% endfor %}
+              </ul>
+            </li>
           </div>
+          <form method="post" action="/domains/add" class="navbar-search pull-right">
+            Add a domain:
+            <input class="search-query span2" name="domain" type="text" placeholder="example.com">
+            <button class="btn" type="submit" style="display: none;">Add Domain</button>
+          </form> 
         </div>
       </div>
     </div>
     <div class="container-fluid">
       <div class="row-fluid">
-        <div class="span3">
-          {% block sidebar %}{% endblock %}
-        </div><!--/span-->
-        <div class="span9">
+        <div class="span12">
           {% with messages = get_flashed_messages() %}
             {% if messages %}
               {% for message in messages %}
-              <p>
-                <span class="badge badge-inverse">{{ message }}</span>
-              </p>
+              <div class="alert alert-info">
+                <strong>Task completed.</strong><br>
+                {{ message }}
+              </div>
               {% endfor %}
             {% endif %}
           {% endwith %}
@@ -56,6 +74,9 @@
       <hr>
       <footer class="pull-right">
         <p>
+          <a href="http://docs.rackspace.com/cdns/api/v1.0/cdns-devguide/content/overview.html">
+            Rackspace Cloud DNS Developer Guide
+          </a> | 
           <a href="https://github.com/rackerhacker/rackspace-clouddns-gui">
             Fork me on GitHub
           </a>
