@@ -69,7 +69,7 @@
                             <input type="text" name="ttl" class="span1" value="3600">
                         </td>
                         <td>
-                            <button type="submit" class="btn btn-success">Add</button>
+                            <button type="submit" class="btn btn-small btn-success">Add</button>
                         </th>
                     </tr>
                 </tbody>
@@ -92,7 +92,7 @@
         <form method="post" action="/domains/delete" class="form-inline">
             <input type="hidden" name="domain" value="{{ domainname }}">
             <input type="text" class="span3" name="confirmation">
-            <button type="submit" class="btn btn-danger">Delete Domain</button>
+            <button type="submit" class="btn btn-small btn-danger">Delete Domain</button>
         </form>
 
     {% else %}
