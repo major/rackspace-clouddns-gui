@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <title>Rackspace-clouddns-gui by rackerhacker</title>
+    <title>Rackspace Cloud DNS GUI by rackerhacker</title>
     
     <link rel="stylesheet" href="stylesheets/styles.css">
     <link rel="stylesheet" href="stylesheets/pygment_trac.css">
@@ -15,7 +15,7 @@
   <body>
     <div class="wrapper">
       <header>
-        <h1>Rackspace-clouddns-gui</h1>
+        <h1>Rackspace Cloud DNS GUI</h1>
         <p>A web-based frontend to Rackspace's Cloud DNS service</p>
         <p class="view"><a href="https://github.com/rackerhacker/rackspace-clouddns-gui">View the Project on GitHub <small>rackerhacker/rackspace-clouddns-gui</small></a></p>
         <ul>
@@ -23,34 +23,49 @@
           <li><a href="https://github.com/rackerhacker/rackspace-clouddns-gui/tarball/master">Download <strong>TAR Ball</strong></a></li>
           <li><a href="https://github.com/rackerhacker/rackspace-clouddns-gui">Fork On <strong>GitHub</strong></a></li>
         </ul>
+        <p>
+          <strong>DISCLAIMER:</strong> This application isn't affiliated with or endorsed by Rackspace, Inc.  Use it at your own risk.
+        </p>
       </header>
       <section>
-        <h3>Welcome to GitHub Pages.</h3>
 
-<p>This automatic page generator is the easiest way to create beautiful pages for all of your projects. Author your page content here using GitHub Flavored Markdown, select a template crafted by a designer, and publish. After your page is generated, you can check out the new branch:</p>
+<h3>What is it?</h3>
 
-<pre><code>$ cd your_repo_root/repo_name
-$ git fetch origin
-$ git checkout gh-pages
+<p>It's a <a href="http://www.python.org">Python</a> application written with <a href="http://flask.pocoo.org/">Flask</a> and <a href="http://jinja.pocoo.org/docs/">Jinja2</a> which will allow you to administer a <a href="http://www.rackspace.com/cloud/cloud_hosting_products/dns/">Rackspace Cloud DNS</a> account without needing to write any code to use the API.</p>
+
+<h3>Why do I want it?</h3>
+
+<p>It's a heck of a lot easier than writing a bunch of code to make some DNS record adjustments.</p>
+
+<h3>Is it stable</h3>
+
+<p>Pretty much.  There are no guarantees that it won't eat your data, but it has performed well so far.</p>
+
+<h3>Installation</h3>
+
+<p>At a minimum, you'll need Python 2.6 or higher installed.  Python 2.5 may work, but it hasn't been thoroughly tested.  You'll also need to install two things from pip (along with their dependencies):</p>
+
+<pre><code>pip install flask
+pip install python-clouddns
 </code></pre>
 
-<p>If you're using the GitHub for Mac, simply sync your repository and you'll see the new branch.</p>
+<p>Clone a copy of the code:</p>
 
-<h3>Designer Templates</h3>
+<pre><code>git clone git://github.com/rackerhacker/rackspace-clouddns-gui.git
+cd rackspace-clouddns-gui
+</code></pre>
 
-<p>We've crafted some handsome templates for you to use. Go ahead and continue to layouts to browse through them. You can easily go back to edit your page before publishing. After publishing your page, you can revisit the page generator and switch to another theme. Your Page content will be preserved if it remained markdown format.</p>
+<p>You'll need a file called <code>apicredentials.json</code> in the base directory of the repository and it should look something like this:</p>
 
-<h3>Rather Drive Stick?</h3>
+<pre><code>{
+    "username": "jsmith",
+    "apikey":   "very_long_api_key"
+}</pre></code>
 
-<p>If you prefer to not use the automatic generator, push a branch named <code>gh-pages</code> to your repository to create a page manually. In addition to supporting regular HTML content, GitHub Pages support Jekyll, a simple, blog aware static site generator written by our own Tom Preston-Werner. Jekyll makes it easy to create site-wide headers and footers without having to copy them across every page. It also offers intelligent blog support and other advanced templating features.</p>
+<h3>Found bugs? Got feature requests?</h3>
 
-<h3>Authors and Contributors</h3>
+<p>Submit a pull request or open a new issue. I'm still new to Python and I'm sure there is plenty of room for improvement.</p>
 
-<p>You can <a href="https://github.com/blog/821" class="user-mention">@mention</a> a GitHub username to generate a link to their profile. The resulting <code>&lt;a&gt;</code> element will link to the contributor's GitHub Profile. For example: In 2007, Chris Wanstrath (<a href="https://github.com/defunkt" class="user-mention">@defunkt</a>), PJ Hyett (<a href="https://github.com/pjhyett" class="user-mention">@pjhyett</a>), and Tom Preston-Werner (<a href="https://github.com/mojombo" class="user-mention">@mojombo</a>) founded GitHub.</p>
-
-<h3>Support or Contact</h3>
-
-<p>Having trouble with Pages? Check out the documentation at <a href="http://help.github.com/pages">http://help.github.com/pages</a> or contact support@github.com and we’ll help you sort it out.</p>
       </section>
       <footer>
         <p>This project is maintained by <a href="https://github.com/rackerhacker">rackerhacker</a></p>
