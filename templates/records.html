@@ -36,11 +36,11 @@
         </td>
         {% endif %}
         <td>
-            <input type="text" name="ttl" value="{{ record.ttl }}" class="span1">
+            <input type="text" name="ttl" value="{{ record.ttl }}" style="width: 50px;">
         </td>
         <td>
             <button class="btn btn-warning" type="submit">Update</button>
-            <a href="/domains/{{domainname}}/{{record.id}}/delete" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete?');">Delete</a>
+            <a href="/domains/{{domainname}}/{{record.id}}/delete" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete record {{record.id}}?');">Delete</a>
         </td>
         </form>
     </tr>

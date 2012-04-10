@@ -50,7 +50,7 @@ def index(domainname=None):
     domainlist = g.raxdns.get_domains()
 
     # If no domainname was specified in the URI, we need to pick up the records
-    if not domainname:
+    if domainname:
         domain = g.raxdns.get_domain(name=domainname)
         records = domain.get_records()
     else:

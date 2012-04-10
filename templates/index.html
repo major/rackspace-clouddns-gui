@@ -18,6 +18,10 @@
 
             <hr>
             <h4>Add a record to {{domainname}}:</h4>
+
+            <em>NOTE:</em> If your DNS record data doesn't end with <code>{{domainname}}</code>,
+            it will be added for you after you submit the form.
+            
             <form method="post" action="/domains/{{domainname}}/add_record">
             <table class="table table-condensed table-striped">
                 <thead>
@@ -25,7 +29,7 @@
                         <th>Type</th>
                         <th>Name</th>
                         <th>Data</th>
-                        <th>Priority (MX/SRV)</th>
+                        <th>Priority</th>
                         <th>TTL</th>
                         <th>&nbsp;</th>
                     </tr>
@@ -44,13 +48,16 @@
                             </select>
                         </td>
                         <td>
-                            <input type="text" name="name" class="span3">
+                            <input type="text" name="name" class="span3"><br>
+                            <em>example.{{domainname}}</em>
                         </td>
                         <td>
-                            <input type="text" name="data" class="span3">
+                            <input type="text" name="data" class="span3"><br>
+                            <em>IP address or target.{{domainname}}</em>
                         </td>
                         <td>
-                            <input type="text" name="priority" class="span1">
+                            <input type="text" name="priority" class="span1"><br>
+                            <em>MX/SRV only</em>
                         </td>
                         <td>
                             <input type="text" name="ttl" class="span1" value="3600">
@@ -74,7 +81,7 @@
         {% endif %}
 
         <hr>
-        <span style="font-weight: bold;">Want to delete this domain?</span>
+        <h4>Want to delete this domain?</h4>
         Type <em>REALLYDELETE</em> in the text field and press Delete Domain. <br>
         <form method="post" action="/domains/delete" class="form-inline">
             <input type="hidden" name="domain" value="{{ domainname }}">
