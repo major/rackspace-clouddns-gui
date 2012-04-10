@@ -6,9 +6,7 @@ This application is not affiliated with or endorsed by Rackspace.  It's still ve
 
 #### Screenshots
 
-![1](http://lolcdn.mhtx.net/clouddns-gui-1-20120409-020912.jpg)
-![2](http://lolcdn.mhtx.net/clouddns-gui-2-20120409-020946.jpg)
-![3](http://lolcdn.mhtx.net/clouddns-gui-3-20120409-021023.jpg)
+![1](http://lolcdn.mhtx.net/clouddns-gui-updated-20120409-223514.jpg)
 
 #### Requirements
 
