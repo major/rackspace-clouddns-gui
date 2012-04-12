@@ -1,0 +1,3 @@
+[submodule "clouddns"]
+	path = clouddns
+	url = git://github.com/rackspace/python-clouddns.git
