@@ -82,6 +82,20 @@ def add_domain():
     return redirect("/domains/%s" % domain)
 
 
+@app.route("/domains/add_zone", methods=['POST'])
+def add_domain():
+    """Handles adding domains via a BIND zone file"""
+
+    # Get the BIND zone file from the user
+    zone_file = request.form['zone_file']
+
+    # Issue a domain import request to the API and flash a message
+    reply = g.raxdns.import_domain(zone_file)
+    flash("Domain import done")
+
+    return redirect("/domains")
+
+
 @app.route("/domains/delete", methods=['POST'])
 def delete_domain():
     """Handles deleting domains"""
