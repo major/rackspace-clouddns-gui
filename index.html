@@ -47,7 +47,7 @@
 
 <h3>Installation</h3>
 
-<p>At a minimum, you'll need Python 2.6 or higher installed.  Python 2.5 may work, but it hasn't been thoroughly tested.  You'll also need to install two things from pip (along with their dependencies):</p>
+<p>At a minimum, you'll need Python 2.6 or higher installed.  Python 2.5 may work, but it hasn't been thoroughly tested.  You'll also need to install flask things from pip (along with its dependencies):</p>
 
 <pre><code>pip install flask
 pip install git+git://github.com/rackspace/python-clouddns
@@ -57,6 +57,8 @@ pip install git+git://github.com/rackspace/python-clouddns
 
 <pre><code>git clone git://github.com/rackerhacker/rackspace-clouddns-gui.git
 cd rackspace-clouddns-gui
+git submodule init
+git submodule update
 </code></pre>
 
 <p>You'll need a file called <code>apicredentials.json</code> in the base directory of the repository and it should look something like this:</p>
