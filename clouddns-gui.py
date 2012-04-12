@@ -15,6 +15,7 @@
 #   limitations under the License.
 #
 from clouddns import connection
+import clouddns.consts
 from flask import Flask, render_template, g, request, flash, redirect
 import json
 import re
@@ -37,8 +38,13 @@ def connect_clouddns():
         creds = json.load(f)
 
     # Connect to Rackspace auth
+    _authurl = clouddns.consts.us_authurl
+    if "auth_url" in creds:
+        if str(creds["auth_url"]).lower() == "uk":
+            _authurl = clouddns.consts.uk_authurl
+
     g.raxdns = connection.Connection(
-        creds['username'], creds['apikey'])
+        creds['username'], creds['apikey'], authurl=_authurl)
 
 
 @app.route("/")
@@ -116,7 +122,7 @@ def add_record(domainname=None):
     # Get the form data out of an immutable dict
     formvars = {x:y[0] for x, y in dict(request.form).iteritems()}
 
-    # Does the data from the form end with the domainname? If it doesn't the 
+    # Does the data from the form end with the domainname? If it doesn't the
     # user probably entered a partial name rather than a FQDN. Append
     # the domain name to ensure that the API doesn't get grumpy.
     if re.match("%s$" % domainname, formvars['name']) == None:
