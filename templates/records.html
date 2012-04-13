@@ -2,8 +2,8 @@
     <thead>
     <tr>
         <th>ID</th>
-        <th>Type</th>
         <th>Name</th>
+        <th>Type</th>
         <th>Data</th>
         <th>Priority</th>
         <th>TTL</th>
@@ -18,10 +18,10 @@
             {{ record.id }}
         </td>
         <td>
-            {{ record.type }}
+            {{ record.name }}
         </td>
         <td>
-            {{ record.name }}
+            {{ record.type }}
         </td>
         <td>
             <input type="text" name="data" value="{{ record.data }}" class="span3">
