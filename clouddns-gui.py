@@ -50,7 +50,7 @@ def connect_clouddns():
 @app.route("/domains")
 @app.route("/domains/<accountId>/<domainname>")
 @app.route("/domains/<accountId>")
-def index(domainname=None, accountId=None):
+def index(accountId=None, domainname=None):
     """All of the HTML for the entire app flows through here"""
     
     if not accountId: # get the default
@@ -86,7 +86,7 @@ def set_accountId():
 
 
 @app.route("/domains/<accountId>/add", methods=['POST'])
-def add_domain():
+def add_domain(accountId=None):
     """Handles adding domains"""
 
     # Find out the name of the domain we're adding
@@ -104,7 +104,7 @@ def add_domain():
 
 
 @app.route("/domains/<accountId>/add_zone", methods=['POST'])
-def add_domain_bind():
+def add_domain_bind(accountId=None):
     """Handles adding domains via a BIND zone file"""
 
     # Get the BIND zone file from the user
@@ -120,7 +120,7 @@ def add_domain_bind():
 
 
 @app.route("/domains/<accountId>/delete", methods=['POST'])
-def delete_domain():
+def delete_domain(accountId=None):
     """Handles deleting domains"""
 
     # Pick up the form fields
@@ -145,7 +145,7 @@ def delete_domain():
 
 
 @app.route("/domains/<accountId>/<domainname>/add_record", methods=['POST'])
-def add_record(domainname=None):
+def add_record(accountId=None, domainname=None):
     """Handles adding records"""
 
     # Get the domain from the API
@@ -185,7 +185,7 @@ def add_record(domainname=None):
 
 
 @app.route("/domains/<accountId>/<domainname>/<recordid>/update", methods=['POST'])
-def update_record(domainname=None, recordid=None):
+def update_record(accountId=None, domainname=None, recordid=None):
     """Handles record updates"""
 
     # Get the domain and record from the API
@@ -207,7 +207,7 @@ def update_record(domainname=None, recordid=None):
 
 
 @app.route("/domains/<accountId>/<domainname>/<recordid>/delete")
-def delete_record(domainname=None, recordid=None):
+def delete_record(accountId=None, domainname=None, recordid=None):
     """Handles record deletions"""
 
     # Get the domain and delete the record
