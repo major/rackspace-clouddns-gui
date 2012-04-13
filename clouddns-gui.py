@@ -87,6 +87,56 @@ def add_domain():
 
     return redirect("/domains/%s" % domain)
 
+@app.route("/domains/duplicate", methods=['POST'])
+def duplicate_domain():
+    """Adds a new domain and adds records from an existing domain"""
+
+    # Dig up the old domain and records
+    olddomain = g.raxdns.get_domain(name=request.form['olddomain'])
+    oldrecords = olddomain.get_records()
+
+    # Create the new domain
+    newdomain = g.raxdns.create_domain(
+        name=request.form['newdomain'],
+        ttl=3600,
+        emailAddress="admin@%s" % request.form['newdomain'])
+
+    # Add records
+    records_to_create = []
+    for oldrecord in oldrecords:
+
+        # Skip these since the new domain should have them anyway
+        if oldrecord.type == 'NS' and str(oldrecord.data).endswith(
+            'stabletransit.com'):
+            continue
+
+        # Change the names on the new records to reflect the new domain
+        oldrecord.name = oldrecord.name.replace(
+            request.form['olddomain'], request.form['newdomain'])
+
+        # We'll have a priority field for MX/SRV records
+        if oldrecord.type in ['MX', 'SRV']:
+            records_to_create.append([
+                oldrecord.name,
+                oldrecord.data,
+                oldrecord.type,
+                int(oldrecord.ttl),
+                oldrecord.priority])
+
+        # Submit without priority for anything else
+        else:
+            records_to_create.append([
+                oldrecord.name,
+                oldrecord.data,
+                oldrecord.type,
+                int(oldrecord.ttl)])
+
+    # Create the DNS records
+    newdomain.create_records(records_to_create)
+
+    # return str("/domains/%s" % request.form['newdomain'])
+    return redirect("/domains/%s" % request.form['newdomain'])
+
 
 @app.route("/domains/add_zone", methods=['POST'])
 def add_domain_bind():
@@ -148,7 +198,7 @@ def add_record(domainname=None):
             formvars['name'],
             formvars['data'],
             formvars['type'],
-            ttl=formvars['ttl'],
+            ttl=int(formvars['ttl']),
             priority=formvars['priority'])
 
     # Submit without priority for anything else
@@ -157,7 +207,7 @@ def add_record(domainname=None):
             formvars['name'],
             formvars['data'],
             formvars['type'],
-            ttl=formvars['ttl'])
+            ttl=int(formvars['ttl']))
 
     # Flash a friendly message
     flash("Record added")

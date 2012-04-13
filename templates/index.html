@@ -103,6 +103,26 @@
     Choose a domain via the dropdown menu above or add a new domain.
     <hr>
 
+    <form method="post" action="/domains/duplicate" class="form-inline">
+        <p>
+            <h4>Duplicate a domain:</h4>
+            <em>Be patient - duplicating a domain takes some time.</em>
+        </p>
+        Create
+        <input class="span3" name="newdomain" type="text" placeholder="example.com">
+        based on the records from
+        <select name="olddomain">
+            {% for domain in domainlist %}
+            <option value="{{domain}}">{{domain}}</option>
+            {% else %}
+            <option value="">No domains available</option>
+            {% endfor %}
+        </select>
+        <button class="btn btn-success" type="submit">Add Domain</button>
+    </form>
+
+    <hr>
+
     <form method="post" action="/domains/add" class="form-inline">
         <p>
             <h4>Add a domain to your account as an empty zone:</h4>
