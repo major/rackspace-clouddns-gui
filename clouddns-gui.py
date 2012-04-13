@@ -176,6 +176,26 @@ def delete_domain():
     return redirect("/domains")
 
 
+@app.route("/domains/<domainname>/ttl_adjust", methods=['POST'])
+def adjust_ttl(domainname=None):
+    """Changes TTL values on all records"""
+
+    # Get the domain from the API
+    domain = g.raxdns.get_domain(name=domainname)
+
+    # Loop through the records and adjust them
+    for record in domain.get_records():
+
+        # The API sometimes throws 400's for these updates and I haven't fully
+        # nailed down the reason why.
+        try:
+            record.update(ttl=int(request.form['ttl']))
+        except:
+            pass
+
+    return redirect("/domains/%s" % domainname)
+
+
 @app.route("/domains/<domainname>/add_record", methods=['POST'])
 def add_record(domainname=None):
     """Handles adding records"""

@@ -76,6 +76,15 @@
             </table>
             </form>
 
+        <hr>
+        <p>
+            <h4>Adjust TTL's for all records:</h4>
+            <em>This will take some time if you have a lot of records.</em>
+        </p>
+        <form method="post" action="/domains/{{domainname}}/ttl_adjust">
+            New TTL for all records: <input type="text" class="span1" name="ttl" value="3600">
+            <button class="btn btn-warning btn-small" type="submit">Set TTL's</button>
+        </form>
 
         {% else %}
 
