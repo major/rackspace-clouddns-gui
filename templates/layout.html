@@ -33,6 +33,13 @@
           </a>
           <a class="brand" href="/">Rackspace Cloud DNS GUI</a>
           <div class="nav">
+            <li>
+              <form method="post" action="/account" class="navbar-search">
+                Account:
+                <input class="search-query span1" name="accountId" type="text" placeholder="{{accountId}}">
+                <button class="btn" type="submit" style="display: none;">Set Account</button>
+              </form> 
+            </li>
             <li class="dropdown" id="menu1">
               <a class="dropdown-toggle" data-toggle="dropdown" href="#menu1">
                 Active Domains
@@ -40,14 +47,14 @@
               </a>
               <ul class="dropdown-menu">
                 {% for domain in domainlist %}
-                <li><a href="/domains/{{domain}}">{{domain}}</a></li>
+                <li><a href="/domains/{{accountId}}/{{domain}}">{{domain}}</a></li>
                 {% else %}
                 <li><a href="/">No domains</a></li>
                 {% endfor %}
               </ul>
             </li>
           </div>
-          <form method="post" action="/domains/add" class="navbar-search pull-right">
+          <form method="post" action="/domains/{{accountId}}/add" class="navbar-search pull-right">
             Add a domain:
             <input class="search-query span2" name="domain" type="text" placeholder="example.com">
             <button class="btn" type="submit" style="display: none;">Add Domain</button>
