@@ -89,7 +89,7 @@ def add_domain():
 
 
 @app.route("/domains/add_zone", methods=['POST'])
-def add_domain():
+def add_domain_bind():
     """Handles adding domains via a BIND zone file"""
 
     # Get the BIND zone file from the user
