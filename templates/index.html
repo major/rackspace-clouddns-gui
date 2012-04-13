@@ -17,7 +17,7 @@
     {% if domainname %}
         {% if records %}
         <h3>
-            Found {{ records|length }} DNS records for {{domainname}}
+            Found {{ records|length }} DNS records for {{domainname}} ({{domainobj.id}})
         </h3>
 
             {% include "records.html" %}

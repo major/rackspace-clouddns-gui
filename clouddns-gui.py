@@ -67,7 +67,7 @@ def index(domainname=None):
     # limits_resp = g.raxdns.make_request('GET', ['limits'])
     # limits = json.loads(limits_resp.read())
 
-    return render_template('index.html', domainname=domainname,
+    return render_template('index.html', domainobj=domain, domainname=domainname,
         domainlist=domainlist, records=records)
 
 
