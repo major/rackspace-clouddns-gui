@@ -61,6 +61,7 @@ def index(domainname=None):
         domain = g.raxdns.get_domain(name=domainname)
         records = domain.get_records()
     else:
+        domain = None
         records = None
 
     #### TODO: Implement an API limits display
