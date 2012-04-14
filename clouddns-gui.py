@@ -93,7 +93,7 @@ def add_domain(accountId=None):
     domain = request.form['domain']
 
     # Issue a domain creation request to the API and flash a message
-    g.raxdns.set_account(ccount_Id)
+    g.raxdns.set_account(accountId)
     g.raxdns.create_domain(
         name=request.form['domain'],
         ttl=3600,
