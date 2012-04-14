@@ -1,0 +1,41 @@
+    <form method="post" action="/domains/add" class="form-inline">
+        <p>
+            <h4>Add a domain to your account as an empty zone:</h4>
+        </p>
+        <input class="span3" name="domain" type="text" placeholder="example.com">
+        <button class="btn btn-success" type="submit">Add Domain</button>
+    </form>
+
+    <hr>
+
+    <form method="post" action="/domains/duplicate" class="form-inline">
+        <p>
+            <h4>Duplicate a domain:</h4>
+            <em>Be patient - duplicating a domain takes some time.</em>
+        </p>
+        <p>
+            Create
+            <input class="span3" name="newdomain" type="text" placeholder="example.com">
+        </p>
+        <p>
+        based on the records from
+        <select name="olddomain" {% if not domainlist %}disabled='disabled'{% endif %}>
+            {% for domain in domainlist %}
+            <option value="{{domain}}">{{domain}}</option>
+            {% else %}
+            <option value="">No domains available</option>
+            {% endfor %}
+        </select>
+        </p>
+        <button class="btn btn-success" type="submit">Add Domain</button>
+    </form>
+
+    <hr>
+
+    <form method="post" action="/domains/add_zone" class="form-inline">
+        <p>
+            <h4>Add a domain to your account using a BIND zone file:</h4>
+        </p>
+        <textarea name="zone_file" class="span4" style="height: 100px;"></textarea>
+        <button class="btn btn-success" type="submit" style="vertical-align: bottom;">Add domain via BIND zone file</button>
+    </form> 
