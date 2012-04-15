@@ -52,13 +52,13 @@ def connect_clouddns():
 @app.route("/domains/<accountId>")
 def index(accountId=None, domainname=None):
     """All of the HTML for the entire app flows through here"""
-    
-    if not accountId: # get the default
-        accountId = g.raxdns.get_accountId()
-    	return redirect("/domains/%s" % accountId)
 
+    # Determine Account
+    if accountId is None:
+        return redirect("/domains/%s" % getAccount())
+    
     # Pick up a list of domains from the API
-    g.raxdns.set_account(accountId)
+    setAccount(accountId)
     domainlist = g.raxdns.get_domains()
 
     # If no domainname was specified in the URI, we need to pick up the records
@@ -78,14 +78,47 @@ def index(accountId=None, domainname=None):
 
 
 @app.route("/account", methods=['POST'])
-def set_accountId():
+def change_accountId():
     """Handles setting the accountId from the Nav Bar"""
 
     accountId = request.form['accountId']
 	### TODO: VALIDATE!!
-    return redirect("/domains/%s" % accountId)
+    if accountId:
+        try:
+            g.raxdns.set_account(accountId)
+        except AttributeError:
+            app.logger.warning('Unable to set_account(), perhaps the python-clouddns library is outdated?')
+            flash("Application Error: unable to set_account(), update python-clouddns library")
+            return redirect("/domains/%s" % getAccount())
+        return redirect("/domains/%s" % accountId)
+    else: # If its blank, return without the trailing /
+        return redirect("/domains")
 
+# No Application route, this is an internal function
+def getAccount():
+    """Internal Function to get the accountId (wrapper to python-clouddns function)"""
+    ## Try the wrapper script, fail (more) gracefully if not support
+    try: 
+        accountId = g.raxdns.get_accountId()
+    except AttributeError:
+        ## work around for missing get_accountId()
+        (baseUri, sep , accountId) = g.raxdns.uri.rstrip('/').rpartition('/')
+        app.logger.warning('Unable to get_account(), perhaps the python-clouddns library is outdated? (%s)' % accountId)
+	pass
+    return accountId
 
+# No Application route, this is an internal function
+def setAccount(accountId=None):
+    """Internal Function to set the accountId (wrapper to python-clouddns function)"""
+    ## Try the wrapper script, fail (more) gracefully if not support
+    try:
+        g.raxdns.set_account(accountId)
+    except AttributeError:
+        app.logger.warning('Unable to set_account(), perhaps the python-clouddns library is outdated? (%s)' % accountId)
+        #flash("Application Error: unable to set_account(), update python-clouddns library")
+        pass
+
+ 
 @app.route("/domains/<accountId>/add", methods=['POST'])
 def add_domain(accountId=None):
     """Handles adding domains"""
@@ -94,7 +127,7 @@ def add_domain(accountId=None):
     domainname = request.form['domain']
 
     # Issue a domain creation request to the API and flash a message
-    g.raxdns.set_account(accountId)
+    setAccount(accountId)
     g.raxdns.create_domain(
         name=domainname,
         ttl=3600,
@@ -108,7 +141,7 @@ def duplicate_domain(accountId=None):
     """Adds a new domain and adds records from an existing domain"""
 
     # Dig up the old domain and records
-    g.raxdns.set_account(accountId)
+    setAccount(accountId)
     olddomain = g.raxdns.get_domain(name=request.form['olddomain'])
     oldrecords = olddomain.get_records()
 
@@ -164,7 +197,7 @@ def add_domain_bind(accountId=None):
     zone_file = request.form['zone_file']
 
     # Issue a domain import request to the API and flash a message
-    g.raxdns.set_account(accountId)
+    setAccount(accountId)
     reply = g.raxdns.import_domain(zone_file, accountId)
     flash("Domain import done")
 
@@ -187,7 +220,7 @@ def delete_domain(accountId=None):
 
     # Retrieve the domain from the API and delete it
     domain_name = request.form['domain']
-    g.raxdns.set_account(accountId)
+    setAccount(accountId)
     domain = g.raxdns.get_domain(name=domain_name)
     g.raxdns.delete_domain(domain.id)
 
@@ -201,7 +234,7 @@ def adjust_ttl(accountId=None,domainname=None):
     """Changes TTL values on all records"""
 
     # Get the domain from the API
-    g.raxdns.set_account(accountId)
+    setAccount(accountId)
     domain = g.raxdns.get_domain(name=domainname)
 
     # Loop through the records and adjust them
@@ -222,7 +255,7 @@ def add_record(accountId=None, domainname=None):
     """Handles adding records"""
 
     # Get the domain from the API
-    g.raxdns.set_account(accountId)
+    setAccount(accountId)
     domain = g.raxdns.get_domain(name=domainname)
 
     # Get the form data out of an immutable dict
@@ -262,7 +295,7 @@ def update_record(accountId=None, domainname=None, recordid=None):
     """Handles record updates"""
 
     # Get the domain and record from the API
-    g.raxdns.set_account(accountId)
+    setAccount(accountId)
     domain = g.raxdns.get_domain(name=domainname)
     record = domain.get_record(id=recordid)
 
@@ -284,7 +317,7 @@ def delete_record(accountId=None, domainname=None, recordid=None):
     """Handles record deletions"""
 
     # Get the domain and delete the record
-    g.raxdns.set_account(accountId)
+    setAccount(accoundId)
     domain = g.raxdns.get_domain(name=domainname)
     domain.delete_record(recordid)
 
