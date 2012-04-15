@@ -317,7 +317,7 @@ def delete_record(accountId=None, domainname=None, recordid=None):
     """Handles record deletions"""
 
     # Get the domain and delete the record
-    setAccount(accoundId)
+    setAccount(accountId)
     domain = g.raxdns.get_domain(name=domainname)
     domain.delete_record(recordid)
 
