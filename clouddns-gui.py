@@ -91,17 +91,17 @@ def add_domain(accountId=None):
     """Handles adding domains"""
 
     # Find out the name of the domain we're adding
-    domain = request.form['domain']
+    domainname = request.form['domain']
 
     # Issue a domain creation request to the API and flash a message
     g.raxdns.set_account(accountId)
     g.raxdns.create_domain(
-        name=request.form['domain'],
+        name=domainname,
         ttl=3600,
-        emailAddress="admin@%s" % domain)
-    flash("Domain added: %s" % domain)
+        emailAddress="admin@%s" % domainname)
+    flash("Domain added: %s" % domainname)
 
-    return redirect("/domains/%s/%s" % (accountId, domain))
+    return redirect("/domains/%s/%s" % (accountId, domainname))
 
 @app.route("/domains/<accountId>/duplicate", methods=['POST'])
 def duplicate_domain(accountId=None):
@@ -169,7 +169,7 @@ def add_domain_bind(accountId=None):
     flash("Domain import done")
 
     return redirect("/domains/%s" % accountId)
-    #return redirect("/domains/%s/%s" % (accountId, domain))
+    #return redirect("/domains/%s/%s" % (accountId, domainname))
 
 
 @app.route("/domains/<accountId>/delete", methods=['POST'])
@@ -214,7 +214,7 @@ def adjust_ttl(accountId=None,domainname=None):
         except:
             pass
 
-    return redirect("/domains/%s" % domainname)
+    return redirect("/domains/%s/%s" % (accountId, domainname))
 
 
 @app.route("/domains/<accountId>/<domainname>/add_record", methods=['POST'])
