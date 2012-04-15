@@ -27,7 +27,7 @@
         <td>
             <input type="text" name="data" value="{{ record.data }}" class="span3">
         </td>
-        {% if record.type == "MX" or record.type == "SRV" %}
+        {% if record.type == "MX" %}
         <td>
             {{ record.priority }}
         </td>
