@@ -66,13 +66,14 @@ def index(accountId=None, domainname=None):
         domain = g.raxdns.get_domain(name=domainname)
         records = domain.get_records()
     else:
+        domain = None
         records = None
 
     #### TODO: Implement an API limits display
     # limits_resp = g.raxdns.make_request('GET', ['limits'])
     # limits = json.loads(limits_resp.read())
 
-    return render_template('index.html', domainname=domainname,
+    return render_template('index.html', domainobj=domain, domainname=domainname,
         domainlist=domainlist, records=records, accountId=accountId)
 
 
@@ -102,6 +103,58 @@ def add_domain(accountId=None):
 
     return redirect("/domains/%s/%s" % (accountId, domain))
 
+@app.route("/domains/<accountId>/duplicate", methods=['POST'])
+def duplicate_domain(accountId=None):
+    """Adds a new domain and adds records from an existing domain"""
+
+    # Dig up the old domain and records
+    g.raxdns.set_account(accountId)
+    olddomain = g.raxdns.get_domain(name=request.form['olddomain'])
+    oldrecords = olddomain.get_records()
+
+    # Create the new domain
+    newdomain = g.raxdns.create_domain(
+        name=request.form['newdomain'],
+        ttl=3600,
+        emailAddress="admin@%s" % request.form['newdomain'])
+
+    # Add records
+    records_to_create = []
+    for oldrecord in oldrecords:
+
+        # Skip these since the new domain should have them anyway
+        if oldrecord.type == 'NS' and str(oldrecord.data).endswith(
+            'stabletransit.com'):
+            continue
+
+        # Change the names on the new records to reflect the new domain
+        oldrecord.name = oldrecord.name.replace(
+            request.form['olddomain'], request.form['newdomain'])
+
+        # We'll have a priority field for MX/SRV records
+        if oldrecord.type in ['MX', 'SRV']:
+            records_to_create.append([
+                oldrecord.name,
+                oldrecord.data,
+                oldrecord.type,
+                int(oldrecord.ttl),
+                oldrecord.priority])
+
+        # Submit without priority for anything else
+        else:
+            records_to_create.append([
+                oldrecord.name,
+                oldrecord.data,
+                oldrecord.type,
+                int(oldrecord.ttl)])
+
+    # Create the DNS records
+    newdomain.create_records(records_to_create)
+
+    # return str("/domains/%s" % request.form['newdomain'])
+    #return redirect("/domains/%s" % request.form['newdomain'])
+    return redirect("/domains/%s/%s" % (accountId, request.form['newdomain']))
+
 
 @app.route("/domains/<accountId>/add_zone", methods=['POST'])
 def add_domain_bind(accountId=None):
@@ -115,8 +168,8 @@ def add_domain_bind(accountId=None):
     reply = g.raxdns.import_domain(zone_file, accountId)
     flash("Domain import done")
 
-    return redirect("/domains/%s/%s" % (accountId, domain))
-    #return redirect("/domains/%s" % accountId)
+    return redirect("/domains/%s" % accountId)
+    #return redirect("/domains/%s/%s" % (accountId, domain))
 
 
 @app.route("/domains/<accountId>/delete", methods=['POST'])
@@ -130,7 +183,7 @@ def delete_domain(accountId=None):
     # Did the user submit the confirmation text properly?
     if not confirmation or confirmation != 'REALLYDELETE':
         flash("Domain deletion canceled. Please type the confirmation string.")
-        return redirect("/domains/%s/%s" % (accountId, domain))
+        return redirect("/domains/%s/%s" % (accountId, domain_name))
 
     # Retrieve the domain from the API and delete it
     domain_name = request.form['domain']
@@ -142,6 +195,26 @@ def delete_domain(accountId=None):
     flash("Domain deleted: %s" % domain_name)
 
     return redirect("/domains/%s" % accountId)
+
+@app.route("/domains/<accountId>/<domainname>/ttl_adjust", methods=['POST'])
+def adjust_ttl(accountId=None,domainname=None):
+    """Changes TTL values on all records"""
+
+    # Get the domain from the API
+    g.raxdns.set_account(accountId)
+    domain = g.raxdns.get_domain(name=domainname)
+
+    # Loop through the records and adjust them
+    for record in domain.get_records():
+
+        # The API sometimes throws 400's for these updates and I haven't fully
+        # nailed down the reason why.
+        try:
+            record.update(ttl=int(request.form['ttl']))
+        except:
+            pass
+
+    return redirect("/domains/%s" % domainname)
 
 
 @app.route("/domains/<accountId>/<domainname>/add_record", methods=['POST'])
@@ -167,7 +240,7 @@ def add_record(accountId=None, domainname=None):
             formvars['name'],
             formvars['data'],
             formvars['type'],
-            ttl=formvars['ttl'],
+            ttl=int(formvars['ttl']),
             priority=formvars['priority'])
 
     # Submit without priority for anything else
@@ -176,12 +249,12 @@ def add_record(accountId=None, domainname=None):
             formvars['name'],
             formvars['data'],
             formvars['type'],
-            ttl=formvars['ttl'])
+            ttl=int(formvars['ttl']))
 
     # Flash a friendly message
     flash("Record added")
 
-    return redirect("/domains/%s/%s" % (accountId, domain))
+    return redirect("/domains/%s/%s" % (accountId, domainname))
 
 
 @app.route("/domains/<accountId>/<domainname>/<recordid>/update", methods=['POST'])
@@ -203,7 +276,7 @@ def update_record(accountId=None, domainname=None, recordid=None):
     # Flash a friendly message
     flash("Record updated")
 
-    return redirect("/domains/%s/%s" % (accountId, domain))
+    return redirect("/domains/%s/%s" % (accountId, domainname))
 
 
 @app.route("/domains/<accountId>/<domainname>/<recordid>/delete")
@@ -218,7 +291,7 @@ def delete_record(accountId=None, domainname=None, recordid=None):
     # Flash a friendly message
     flash("Record deleted")
 
-    return redirect("/domains/%s/%s" % (accountId, domain))
+    return redirect("/domains/%s/%s" % (accountId, domainname))
 
 if __name__ == "__main__":
     # Only for running this app via python directly.  This is ignored if you

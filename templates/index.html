@@ -13,116 +13,43 @@
 {% endblock %}
 
 {% block body %}
-
     {% if domainname %}
         {% if records %}
         <h3>
-            Found {{ records|length }} DNS records for {{domainname}}
+            Found {{ records|length }} DNS records for {{domainname}} ({{domainobj.id}})
         </h3>
-
             {% include "records.html" %}
-
-            <hr>
-            <h4>Add a record to {{domainname}}:</h4>
-
-            <em>NOTE:</em> If your DNS record name doesn't end with <code>{{domainname}}</code>,
-            it will be added for you after you submit the form.
-            
-            <form method="post" action="/domains/{{accountId}}/{{domainname}}/add_record">
-            <table class="table table-condensed table-striped">
-                <thead>
-                    <tr>
-                        <th>Type</th>
-                        <th>Name</th>
-                        <th>Data</th>
-                        <th>Priority</th>
-                        <th>TTL</th>
-                        <th>&nbsp;</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>
-                            <select name="type" class="span2">
-                                <option value="A">A</option>
-                                <option value="AAAA">AAAA</option>
-                                <option value="CNAME">CNAME</option>
-                                <option value="MX">MX</option>
-                                <option value="NS">NS</option>
-                                <option value="SRV">SRV</option>
-                                <option value="TXT">TXT</option>
-                            </select>
-                        </td>
-                        <td>
-                            <input type="text" name="name" class="span3"><br>
-                            <em>example.{{domainname}}</em>
-                        </td>
-                        <td>
-                            <input type="text" name="data" class="span3"><br>
-                            <em>IP address or target.{{domainname}}</em>
-                        </td>
-                        <td>
-                            <input type="text" name="priority" class="span1"><br>
-                            <em>MX/SRV only</em>
-                        </td>
-                        <td>
-                            <input type="text" name="ttl" class="span1" value="3600">
-                        </td>
-                        <td>
-                            <button type="submit" class="btn btn-small btn-success">Add</button>
-                        </th>
-                    </tr>
-                </tbody>
-            </table>
-            </form>
-
-
-        {% else %}
-
-        <p style="font-weight: bold;">
-            No records found.
-        </p>
-        No records found for {{domainname}}.
-
         {% endif %}
-
-        <hr>
-        <h4>Want to delete this domain?</h4>
-        Type <em>REALLYDELETE</em> in the text field and press Delete Domain. <br>
-        <form method="post" action="/domains/{{accountId}}/delete" class="form-inline">
-            <input type="hidden" name="domain" value="{{ domainname }}">
-            <input type="text" class="span3" name="confirmation">
-            <button type="submit" class="btn btn-small btn-danger">Delete Domain</button>
-        </form>
-
+        {% include "actions-records.html" %}
     {% else %}
-
-    <p style="font-weight: bold;">
-        No domain specified.
-    </p>
-    Choose a domain via the dropdown menu above or add a new domain.
-    <hr>
-
-    <form method="post" action="/domains/{{accountId}}/add" class="form-inline">
-        <p>
-            <h4>Add a domain to your account as an empty zone:</h4>
-        </p>
-        <input class="span3" name="domain" type="text" placeholder="example.com">
-        <button class="btn btn-success" type="submit">Add Domain</button>
-    </form>
-
-    <hr>
-
-    <form method="post" action="/domains/{{accountId}}/add_zone" class="form-inline">
-        <p>
-            <h4>Add a domain to your account using a BIND zone file:</h4>
-        </p>
-        <textarea name="zone_file" style="width: 600px; height: 100px;"></textarea>
-        <button class="btn btn-success" type="submit" style="vertical-align: bottom;">Add Domain</button>
-    </form> 
-
+    <div class="row-fluid">
+        <div class="span7">
+            {% if domainlist %}
+            <h3>
+                Domains found in your account: {{ domainlist|length }}
+            </h3>
+            {% endif %}
+            <ul>
+                {% for domain in domainlist %}
+                <li>
+                    <a href="/domains/{{accountId}}/{{domain}}">{{domain}}</a>
+                    <span style="color: grey">
+                        ({{ domain.id }})
+                    </span>
+                </li>
+                {% else %}
+                <h3>
+                    No domains found in your account.
+                </h3>
+                <p>
+                    Add a domain using the forms on the right.
+                </p>
+                {% endfor %}
+            </ul>
+        </div>
+        <div class="span5">
+            {% include "actions-mainpage.html" %}
+        </div>
+    </div>
     {% endif %}
-
-
-
 {% endblock %}

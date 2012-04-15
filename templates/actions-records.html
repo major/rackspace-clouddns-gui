@@ -1,0 +1,82 @@
+        {% if records %}
+            <hr>
+            <h4>Add a record to {{domainname}}:</h4>
+
+            <em>NOTE:</em> If your DNS record name doesn't end with <code>{{domainname}}</code>,
+            it will be added for you after you submit the form.
+            
+            <form method="post" action="/domains/{{domainname}}/add_record">
+            <table class="table table-condensed table-striped">
+                <thead>
+                    <tr>
+                        <th>Type</th>
+                        <th>Name</th>
+                        <th>Data</th>
+                        <th>Priority</th>
+                        <th>TTL</th>
+                        <th>&nbsp;</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            <select name="type" class="span2">
+                                <option value="A">A</option>
+                                <option value="AAAA">AAAA</option>
+                                <option value="CNAME">CNAME</option>
+                                <option value="MX">MX</option>
+                                <option value="NS">NS</option>
+                                <option value="SRV">SRV</option>
+                                <option value="TXT">TXT</option>
+                            </select>
+                        </td>
+                        <td>
+                            <input type="text" name="name" class="span3"><br>
+                            <em>example.{{domainname}}</em>
+                        </td>
+                        <td>
+                            <input type="text" name="data" class="span3"><br>
+                            <em>IP address or target.{{domainname}}</em>
+                        </td>
+                        <td>
+                            <input type="text" name="priority" class="span1"><br>
+                            <em>MX/SRV only</em>
+                        </td>
+                        <td>
+                            <input type="text" name="ttl" class="span1" value="3600">
+                        </td>
+                        <td>
+                            <button type="submit" class="btn btn-small btn-success">Add</button>
+                        </th>
+                    </tr>
+                </tbody>
+            </table>
+            </form>
+
+        <hr>
+        <p>
+            <h4>Adjust TTL's for all records:</h4>
+            <em>This will take some time if you have a lot of records.</em>
+        </p>
+        <form method="post" action="/domains/{{domainname}}/ttl_adjust">
+            New TTL for all records: <input type="text" class="span1" name="ttl" value="3600">
+            <button class="btn btn-warning btn-small" type="submit">Set TTL's</button>
+        </form>
+
+        {% else %}
+
+        <p style="font-weight: bold;">
+            No records found.
+        </p>
+        No records found for {{domainname}}.
+
+        {% endif %}
+
+        <hr>
+        <h4>Want to delete this domain?</h4>
+        Type <em>REALLYDELETE</em> in the text field and press Delete Domain. <br>
+        <form method="post" action="/domains/delete" class="form-inline">
+            <input type="hidden" name="domain" value="{{ domainname }}">
+            <input type="text" class="span3" name="confirmation">
+            <button type="submit" class="btn btn-small btn-danger">Delete Domain</button>
+        </form>
