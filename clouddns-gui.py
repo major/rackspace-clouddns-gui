@@ -82,43 +82,43 @@ def change_accountId():
     """Handles setting the accountId from the Nav Bar"""
 
     accountId = request.form['accountId']
-	### TODO: VALIDATE!!
+    ### TODO: VALIDATE!!
     if accountId:
-        try:
-            g.raxdns.set_account(accountId)
-        except AttributeError:
-            app.logger.warning('Unable to set_account(), perhaps the python-clouddns library is outdated?')
-            flash("Application Error: unable to set_account(), update python-clouddns library")
-            return redirect("/domains/%s" % getAccount())
-        return redirect("/domains/%s" % accountId)
+       return redirect("/domains/%s" % accountId)
     else: # If its blank, return without the trailing /
         return redirect("/domains")
+
 
 # No Application route, this is an internal function
 def getAccount():
     """Internal Function to get the accountId (wrapper to python-clouddns function)"""
-    ## Try the wrapper script, fail (more) gracefully if not support
+    ## Try the proper method, but fallback to a local implementation
     try: 
         accountId = g.raxdns.get_accountId()
     except AttributeError:
         ## work around for missing get_accountId()
         (baseUri, sep , accountId) = g.raxdns.uri.rstrip('/').rpartition('/')
-        app.logger.warning('Unable to get_account(), perhaps the python-clouddns library is outdated? (%s)' % accountId)
-	pass
+        #app.logger.debug('Local Implementation get_account: %s' % accountId)
     return accountId
 
+
 # No Application route, this is an internal function
-def setAccount(accountId=None):
+def setAccount(accountId):
     """Internal Function to set the accountId (wrapper to python-clouddns function)"""
-    ## Try the wrapper script, fail (more) gracefully if not support
+
+    ## Try the proper method, but fallback to a local implementation
     try:
         g.raxdns.set_account(accountId)
     except AttributeError:
-        app.logger.warning('Unable to set_account(), perhaps the python-clouddns library is outdated? (%s)' % accountId)
-        #flash("Application Error: unable to set_account(), update python-clouddns library")
-        pass
+        # This works around not having the method by implementing it here, but
+        # I do not think that it is "proper" to be tweaking object attributes from
+        # outside the object
+        (baseUri, sep , oldAccountId) = g.raxdns.uri.rstrip('/').rpartition('/')
+        g.raxdns.uri = baseUri + '/' + accountId
+        #app.logger.debug('Local Implementation set_account(%s): %s' % (accountId, g.raxdns.uri))
+    return
 
- 
+
 @app.route("/domains/<accountId>/add", methods=['POST'])
 def add_domain(accountId=None):
     """Handles adding domains"""
