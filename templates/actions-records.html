@@ -13,6 +13,7 @@
                         <th>Name</th>
                         <th>Data</th>
                         <th>Priority</th>
+                        <th>Comment</th>
                         <th>TTL</th>
                         <th>&nbsp;</th>
                     </tr>
@@ -43,6 +44,9 @@
                             <em>MX/SRV only</em>
                         </td>
                         <td>
+                            <input type="text" name="comment" class="span2">
+                        </td>
+                        <td>
                             <input type="text" name="ttl" class="span1" value="3600">
                         </td>
                         <td>
@@ -71,6 +75,13 @@
         No records found for {{domainname}}.
 
         {% endif %}
+
+        <hr>
+        <h4>Domain Comment</h4>
+        <form method="post" action="/domains/{{ domainname }}/comment">
+            <input type="text" class="span3" name="comment" value="{% if domaincomment %}{{ domaincomment }}{% endif %}">
+            <button class="btn btn-warning btn-small" type="submit">Save</button>
+        </form>
 
         <hr>
         <h4>Want to delete this domain?</h4>

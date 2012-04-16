@@ -65,16 +65,18 @@ def index(accountId=None, domainname=None):
     if domainname:
         domain = g.raxdns.get_domain(name=domainname)
         records = domain.get_records()
+        domaincomment = domain.comment
     else:
         domain = None
         records = None
+        domaincomment = None
 
     #### TODO: Implement an API limits display
     # limits_resp = g.raxdns.make_request('GET', ['limits'])
     # limits = json.loads(limits_resp.read())
 
     return render_template('index.html', domainobj=domain, domainname=domainname,
-        domainlist=domainlist, records=records, accountId=accountId)
+        domainlist=domainlist, domaincomment=domaincomment, records=records, accountId=accountId)
 
 
 @app.route("/account", methods=['POST'])
@@ -250,6 +252,20 @@ def adjust_ttl(accountId=None,domainname=None):
     return redirect("/domains/%s/%s" % (accountId, domainname))
 
 
+@app.route("/domains/<accountId>/<domainname>/comment", methods=['POST'])
+def domain_comment(accountId=None,domainname=None):
+    """Edits the comment on a domain"""
+
+    # Get the domain from the API
+    setAccount(accountId)
+    domain = g.raxdns.get_domain(name=domainname)
+
+    # Set the comment
+    domain.update(comment=request.form['comment'])
+
+    return redirect("/domains/%s" % domainname)
+
+
 @app.route("/domains/<accountId>/<domainname>/add_record", methods=['POST'])
 def add_record(accountId=None, domainname=None):
     """Handles adding records"""
@@ -274,7 +290,8 @@ def add_record(accountId=None, domainname=None):
             formvars['data'],
             formvars['type'],
             ttl=int(formvars['ttl']),
-            priority=formvars['priority'])
+            priority=formvars['priority'],
+            comment=formvars['comment'])
 
     # Submit without priority for anything else
     else:
@@ -282,7 +299,8 @@ def add_record(accountId=None, domainname=None):
             formvars['name'],
             formvars['data'],
             formvars['type'],
-            ttl=int(formvars['ttl']))
+            ttl=int(formvars['ttl']),
+            comment=formvars['comment'])
 
     # Flash a friendly message
     flash("Record added")
