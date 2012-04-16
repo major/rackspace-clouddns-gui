@@ -2,8 +2,8 @@
     <thead>
     <tr>
         <th>ID</th>
-        <th>Type</th>
         <th>Name</th>
+        <th>Type</th>
         <th>Data</th>
         <th>Priority</th>
         <th>Comment</th>
@@ -14,15 +14,15 @@
     <tbody>
 {% for record in records %}
     <tr>
-        <form method="post" action="/domains/{{domainname}}/{{record.id}}/update">
+        <form method="post" action="/domains/{{accountId}}/{{domainname}}/{{record.id}}/update">
         <td>
             {{ record.id }}
         </td>
         <td>
-            {{ record.type }}
+            {{ record.name }}
         </td>
         <td>
-            {{ record.name }}
+            {{ record.type }}
         </td>
         <td>
             <input type="text" name="data" value="{{ record.data }}" class="span3">
@@ -46,7 +46,7 @@
         </td>
         <td>
             <button class="btn btn-small btn-warning" type="submit">Update</button>
-            <a href="/domains/{{domainname}}/{{record.id}}/delete" class="btn btn-small btn-danger" onclick="return confirm('Are you sure you want to delete record {{record.id}}?');">Delete</a>
+            <a href="/domains/{{accountId}}/{{domainname}}/{{record.id}}/delete" class="btn btn-small btn-danger" onclick="return confirm('Are you sure you want to delete record {{record.id}}?');">Delete</a>
         </td>
         </form>
     </tr>

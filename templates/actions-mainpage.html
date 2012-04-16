@@ -1,4 +1,4 @@
-    <form method="post" action="/domains/add" class="form-inline">
+    <form method="post" action="/domains/{{accountId}}/add" class="form-inline">
         <p>
             <h4>Add a domain to your account as an empty zone:</h4>
         </p>
@@ -8,7 +8,7 @@
 
     <hr>
 
-    <form method="post" action="/domains/duplicate" class="form-inline">
+    <form method="post" action="/domains/{{accountId}}/duplicate" class="form-inline">
         <p>
             <h4>Duplicate a domain:</h4>
             <em>Be patient - duplicating a domain takes some time.</em>
@@ -32,7 +32,7 @@
 
     <hr>
 
-    <form method="post" action="/domains/add_zone" class="form-inline">
+    <form method="post" action="/domains/{{accountId}}/add_zone" class="form-inline">
         <p>
             <h4>Add a domain to your account using a BIND zone file:</h4>
         </p>

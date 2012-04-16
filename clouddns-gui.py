@@ -46,14 +46,19 @@ def connect_clouddns():
     g.raxdns = connection.Connection(
         creds['username'], creds['apikey'], authurl=_authurl)
 
-
 @app.route("/")
 @app.route("/domains")
-@app.route("/domains/<domainname>")
-def index(domainname=None):
+@app.route("/domains/<accountId>/<domainname>")
+@app.route("/domains/<accountId>")
+def index(accountId=None, domainname=None):
     """All of the HTML for the entire app flows through here"""
 
+    # Determine Account
+    if accountId is None:
+        return redirect("/domains/%s" % getAccount())
+    
     # Pick up a list of domains from the API
+    setAccount(accountId)
     domainlist = g.raxdns.get_domains()
 
     # If no domainname was specified in the URI, we need to pick up the records
@@ -71,30 +76,74 @@ def index(domainname=None):
     # limits = json.loads(limits_resp.read())
 
     return render_template('index.html', domainobj=domain, domainname=domainname,
-        domainlist=domainlist, domaincomment=domaincomment, records=records)
+        domainlist=domainlist, domaincomment=domaincomment, records=records, accountId=accountId)
 
 
-@app.route("/domains/add", methods=['POST'])
-def add_domain():
+@app.route("/account", methods=['POST'])
+def change_accountId():
+    """Handles setting the accountId from the Nav Bar"""
+
+    accountId = request.form['accountId']
+    ### TODO: VALIDATE!!
+    if accountId:
+       return redirect("/domains/%s" % accountId)
+    else: # If its blank, return without the trailing /
+        return redirect("/domains")
+
+
+# No Application route, this is an internal function
+def getAccount():
+    """Internal Function to get the accountId (wrapper to python-clouddns function)"""
+    ## Try the proper method, but fallback to a local implementation
+    try: 
+        accountId = g.raxdns.get_accountId()
+    except AttributeError:
+        ## work around for missing get_accountId()
+        (baseUri, sep , accountId) = g.raxdns.uri.rstrip('/').rpartition('/')
+        #app.logger.debug('Local Implementation get_account: %s' % accountId)
+    return accountId
+
+
+# No Application route, this is an internal function
+def setAccount(accountId):
+    """Internal Function to set the accountId (wrapper to python-clouddns function)"""
+
+    ## Try the proper method, but fallback to a local implementation
+    try:
+        g.raxdns.set_account(accountId)
+    except AttributeError:
+        # This works around not having the method by implementing it here, but
+        # I do not think that it is "proper" to be tweaking object attributes from
+        # outside the object
+        (baseUri, sep , oldAccountId) = g.raxdns.uri.rstrip('/').rpartition('/')
+        g.raxdns.uri = baseUri + '/' + accountId
+        #app.logger.debug('Local Implementation set_account(%s): %s' % (accountId, g.raxdns.uri))
+    return
+
+
+@app.route("/domains/<accountId>/add", methods=['POST'])
+def add_domain(accountId=None):
     """Handles adding domains"""
 
     # Find out the name of the domain we're adding
-    domain = request.form['domain']
+    domainname = request.form['domain']
 
     # Issue a domain creation request to the API and flash a message
+    setAccount(accountId)
     g.raxdns.create_domain(
-        name=request.form['domain'],
+        name=domainname,
         ttl=3600,
-        emailAddress="admin@%s" % domain)
-    flash("Domain added: %s" % domain)
+        emailAddress="admin@%s" % domainname)
+    flash("Domain added: %s" % domainname)
 
-    return redirect("/domains/%s" % domain)
+    return redirect("/domains/%s/%s" % (accountId, domainname))
 
-@app.route("/domains/duplicate", methods=['POST'])
-def duplicate_domain():
+@app.route("/domains/<accountId>/duplicate", methods=['POST'])
+def duplicate_domain(accountId=None):
     """Adds a new domain and adds records from an existing domain"""
 
     # Dig up the old domain and records
+    setAccount(accountId)
     olddomain = g.raxdns.get_domain(name=request.form['olddomain'])
     oldrecords = olddomain.get_records()
 
@@ -138,25 +187,28 @@ def duplicate_domain():
     newdomain.create_records(records_to_create)
 
     # return str("/domains/%s" % request.form['newdomain'])
-    return redirect("/domains/%s" % request.form['newdomain'])
+    #return redirect("/domains/%s" % request.form['newdomain'])
+    return redirect("/domains/%s/%s" % (accountId, request.form['newdomain']))
 
 
-@app.route("/domains/add_zone", methods=['POST'])
-def add_domain_bind():
+@app.route("/domains/<accountId>/add_zone", methods=['POST'])
+def add_domain_bind(accountId=None):
     """Handles adding domains via a BIND zone file"""
 
     # Get the BIND zone file from the user
     zone_file = request.form['zone_file']
 
     # Issue a domain import request to the API and flash a message
-    reply = g.raxdns.import_domain(zone_file)
+    setAccount(accountId)
+    reply = g.raxdns.import_domain(zone_file, accountId)
     flash("Domain import done")
 
-    return redirect("/domains")
+    return redirect("/domains/%s" % accountId)
+    #return redirect("/domains/%s/%s" % (accountId, domainname))
 
 
-@app.route("/domains/delete", methods=['POST'])
-def delete_domain():
+@app.route("/domains/<accountId>/delete", methods=['POST'])
+def delete_domain(accountId=None):
     """Handles deleting domains"""
 
     # Pick up the form fields
@@ -166,24 +218,25 @@ def delete_domain():
     # Did the user submit the confirmation text properly?
     if not confirmation or confirmation != 'REALLYDELETE':
         flash("Domain deletion canceled. Please type the confirmation string.")
-        return redirect("/domains/%s" % domain_name)
+        return redirect("/domains/%s/%s" % (accountId, domain_name))
 
     # Retrieve the domain from the API and delete it
     domain_name = request.form['domain']
+    setAccount(accountId)
     domain = g.raxdns.get_domain(name=domain_name)
     g.raxdns.delete_domain(domain.id)
 
     # Flash a friendly message
     flash("Domain deleted: %s" % domain_name)
 
-    return redirect("/domains")
+    return redirect("/domains/%s" % accountId)
 
-
-@app.route("/domains/<domainname>/ttl_adjust", methods=['POST'])
-def adjust_ttl(domainname=None):
+@app.route("/domains/<accountId>/<domainname>/ttl_adjust", methods=['POST'])
+def adjust_ttl(accountId=None,domainname=None):
     """Changes TTL values on all records"""
 
     # Get the domain from the API
+    setAccount(accountId)
     domain = g.raxdns.get_domain(name=domainname)
 
     # Loop through the records and adjust them
@@ -196,14 +249,15 @@ def adjust_ttl(domainname=None):
         except:
             pass
 
-    return redirect("/domains/%s" % domainname)
+    return redirect("/domains/%s/%s" % (accountId, domainname))
 
 
-@app.route("/domains/<domainname>/comment", methods=['POST'])
-def domain_comment(domainname=None):
+@app.route("/domains/<accountId>/<domainname>/comment", methods=['POST'])
+def domain_comment(accountId=None,domainname=None):
     """Edits the comment on a domain"""
 
     # Get the domain from the API
+    setAccount(accountId)
     domain = g.raxdns.get_domain(name=domainname)
 
     # Set the comment
@@ -212,11 +266,12 @@ def domain_comment(domainname=None):
     return redirect("/domains/%s" % domainname)
 
 
-@app.route("/domains/<domainname>/add_record", methods=['POST'])
-def add_record(domainname=None):
+@app.route("/domains/<accountId>/<domainname>/add_record", methods=['POST'])
+def add_record(accountId=None, domainname=None):
     """Handles adding records"""
 
     # Get the domain from the API
+    setAccount(accountId)
     domain = g.raxdns.get_domain(name=domainname)
 
     # Get the form data out of an immutable dict
@@ -250,14 +305,15 @@ def add_record(domainname=None):
     # Flash a friendly message
     flash("Record added")
 
-    return redirect("/domains/%s" % domainname)
+    return redirect("/domains/%s/%s" % (accountId, domainname))
 
 
-@app.route("/domains/<domainname>/<recordid>/update", methods=['POST'])
-def update_record(domainname=None, recordid=None):
+@app.route("/domains/<accountId>/<domainname>/<recordid>/update", methods=['POST'])
+def update_record(accountId=None, domainname=None, recordid=None):
     """Handles record updates"""
 
     # Get the domain and record from the API
+    setAccount(accountId)
     domain = g.raxdns.get_domain(name=domainname)
     record = domain.get_record(id=recordid)
 
@@ -271,23 +327,27 @@ def update_record(domainname=None, recordid=None):
     # Flash a friendly message
     flash("Record updated")
 
-    return redirect("/domains/%s" % domainname)
+    return redirect("/domains/%s/%s" % (accountId, domainname))
 
 
-@app.route("/domains/<domainname>/<recordid>/delete")
-def delete_record(domainname=None, recordid=None):
+@app.route("/domains/<accountId>/<domainname>/<recordid>/delete")
+def delete_record(accountId=None, domainname=None, recordid=None):
     """Handles record deletions"""
 
     # Get the domain and delete the record
+    setAccount(accountId)
     domain = g.raxdns.get_domain(name=domainname)
     domain.delete_record(recordid)
 
     # Flash a friendly message
     flash("Record deleted")
 
-    return redirect("/domains/%s" % domainname)
+    return redirect("/domains/%s/%s" % (accountId, domainname))
 
 if __name__ == "__main__":
     # Only for running this app via python directly.  This is ignored if you
     # run it through mod_wsgi.
+    #app.run(host='127.0.0.1')
     app.run(host='0.0.0.0')
+
+#vim:set ai sw=4 ts=4 tw=0 expandtab:

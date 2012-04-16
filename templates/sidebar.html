@@ -1,14 +1,14 @@
           <div class="well sidebar-nav"> 
             <ul class="nav nav-list">
               <li>
-              <form method="post" action="/domains/add" class="form-inline">
+              <form method="post" action="/domains/{{accountId}}/add" class="form-inline">
               <input class="span2" name="domain" type="text" placeholder="example.com">
               <button class="btn" type="submit">Add Domain</button>
               </form> 
               </li>
               <li class="nav-header">Domains</li>
 {% for domain in domainlist %}
-              <li><a href="/domains/{{ domain }}">{{ domain }}</a></li>
+              <li><a href="/domains/{{accountId}}/{{ domain }}">{{ domain }}</a></li>
 {% endfor %}
             </ul>
           </div>

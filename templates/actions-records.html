@@ -5,7 +5,7 @@
             <em>NOTE:</em> If your DNS record name doesn't end with <code>{{domainname}}</code>,
             it will be added for you after you submit the form.
             
-            <form method="post" action="/domains/{{domainname}}/add_record">
+            <form method="post" action="/domains/{{accountId}}/{{domainname}}/add_record">
             <table class="table table-condensed table-striped">
                 <thead>
                     <tr>
@@ -62,7 +62,7 @@
             <h4>Adjust TTL's for all records:</h4>
             <em>This will take some time if you have a lot of records.</em>
         </p>
-        <form method="post" action="/domains/{{domainname}}/ttl_adjust">
+        <form method="post" action="/domains/{{accountId}}/{{domainname}}/ttl_adjust">
             New TTL for all records: <input type="text" class="span1" name="ttl" value="3600">
             <button class="btn btn-warning btn-small" type="submit">Set TTL's</button>
         </form>
@@ -86,7 +86,7 @@
         <hr>
         <h4>Want to delete this domain?</h4>
         Type <em>REALLYDELETE</em> in the text field and press Delete Domain. <br>
-        <form method="post" action="/domains/delete" class="form-inline">
+        <form method="post" action="/domains/{{accountId}}/delete" class="form-inline">
             <input type="hidden" name="domain" value="{{ domainname }}">
             <input type="text" class="span3" name="confirmation">
             <button type="submit" class="btn btn-small btn-danger">Delete Domain</button>
