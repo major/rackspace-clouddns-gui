@@ -16,7 +16,7 @@
 #
 from clouddns import connection
 import clouddns.consts
-from flask import Flask, render_template, g, request, flash, redirect
+from flask import Flask, render_template, g, session, request, flash, redirect
 import json
 import re
 
@@ -53,6 +53,9 @@ def connect_clouddns():
 def index(domainname=None):
     """All of the HTML for the entire app flows through here"""
 
+    # Set AccountID (from session)
+    setAccount()
+
     # Pick up a list of domains from the API
     domainlist = g.raxdns.get_domains()
 
@@ -78,8 +81,14 @@ def index(domainname=None):
 def add_domain():
     """Handles adding domains"""
 
+    # Set AccountID (from session)
+    setAccount()
+    
     # Find out the name of the domain we're adding
     domain = request.form['domain']
+
+    # Set AccountID (from session)
+    setAccount()
 
     # Issue a domain creation request to the API and flash a message
     g.raxdns.create_domain(
@@ -93,6 +102,9 @@ def add_domain():
 @app.route("/domains/duplicate", methods=['POST'])
 def duplicate_domain():
     """Adds a new domain and adds records from an existing domain"""
+
+    # Set AccountID (from session)
+    setAccount()
 
     # Dig up the old domain and records
     olddomain = g.raxdns.get_domain(name=request.form['olddomain'])
@@ -145,6 +157,9 @@ def duplicate_domain():
 def add_domain_bind():
     """Handles adding domains via a BIND zone file"""
 
+    # Set AccountID (from session)
+    setAccount()
+
     # Get the BIND zone file from the user
     zone_file = request.form['zone_file']
 
@@ -158,6 +173,9 @@ def add_domain_bind():
 @app.route("/domains/delete", methods=['POST'])
 def delete_domain():
     """Handles deleting domains"""
+
+    # Set AccountID (from session)
+    setAccount()
 
     # Pick up the form fields
     confirmation = request.form['confirmation']
@@ -183,6 +201,9 @@ def delete_domain():
 def adjust_ttl(domainname=None):
     """Changes TTL values on all records"""
 
+    # Set AccountID (from session)
+    setAccount()
+
     # Get the domain from the API
     domain = g.raxdns.get_domain(name=domainname)
 
@@ -203,6 +224,9 @@ def adjust_ttl(domainname=None):
 def domain_comment(domainname=None):
     """Edits the comment on a domain"""
 
+    # Set AccountID (from session)
+    setAccount()
+
     # Get the domain from the API
     domain = g.raxdns.get_domain(name=domainname)
 
@@ -215,6 +239,9 @@ def domain_comment(domainname=None):
 @app.route("/domains/<domainname>/add_record", methods=['POST'])
 def add_record(domainname=None):
     """Handles adding records"""
+
+    # Set AccountID (from session)
+    setAccount()
 
     # Get the domain from the API
     domain = g.raxdns.get_domain(name=domainname)
@@ -257,6 +284,9 @@ def add_record(domainname=None):
 def update_record(domainname=None, recordid=None):
     """Handles record updates"""
 
+    # Set AccountID (from session)
+    setAccount()
+
     # Get the domain and record from the API
     domain = g.raxdns.get_domain(name=domainname)
     record = domain.get_record(id=recordid)
@@ -278,6 +308,9 @@ def update_record(domainname=None, recordid=None):
 def delete_record(domainname=None, recordid=None):
     """Handles record deletions"""
 
+    # Set AccountID (from session)
+    setAccount()
+
     # Get the domain and delete the record
     domain = g.raxdns.get_domain(name=domainname)
     domain.delete_record(recordid)
@@ -286,6 +319,63 @@ def delete_record(domainname=None, recordid=None):
     flash("Record deleted")
 
     return redirect("/domains/%s" % domainname)
+
+@app.route("/account", methods=['POST'])
+def change_accountId():
+    """Handles setting the accountId from the Nav Bar"""
+
+    accountId = request.form['accountId']
+
+    ### TODO: VALIDATE!! (numeric, length, etc?)
+
+    if accountId is None or accountId == "" or accountId == "default":
+        session.pop('accountId', None) # Remove the accountId from the session
+    else:
+        session['accountId'] = accountId # Update the accountId in the session
+    return redirect("/domains")
+
+
+# No Application route, this is an internal function
+def getAccount():
+    """Internal Function to get the accountId (wrapper to python-clouddns function)"""
+
+    ## Try the proper method, but fallback to a local implementation
+    try:
+        accountId = g.raxdns.get_accountId()
+    except AttributeError:
+        ## work around for missing get_accountId()
+        (baseUri, sep , accountId) = g.raxdns.uri.rstrip('/').rpartition('/')
+        #app.logger.debug('Local Implementation get_account: %s' % accountId)
+    return accountId
+
+
+# No Application route, this is an internal function
+def setAccount():
+    """Internal Function to set the accountId in g.raxdns (wrapper to python-clouddns function)"""
+
+    # Figure out the accountId
+    if 'accountId' in session:
+        accountId = session['accountId']
+    else:
+        accountId = getAccount()
+        session['accountId'] = accountId
+
+    # Set g.accountId (to pass it to the GUI)
+    g.accountId = accountId
+
+    # Set the accountId in the raxdns object
+    ## Try the proper method, but fallback to a local implementation
+    try:
+        g.raxdns.set_account(accountId)
+    except AttributeError:
+        # This works around not having the method by implementing it here, but
+        # I do not think that it is "proper" to be tweaking object attributes from
+        # outside the object
+        (baseUri, sep , oldAccountId) = g.raxdns.uri.rstrip('/').rpartition('/')
+        g.raxdns.uri = baseUri + '/' + accountId
+        #app.logger.debug('Local Implementation set_account(%s): %s' % (accountId, g.raxdns.uri))
+    return
+
 
 if __name__ == "__main__":
     # Only for running this app via python directly.  This is ignored if you
