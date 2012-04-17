@@ -290,4 +290,4 @@ def delete_record(domainname=None, recordid=None):
 if __name__ == "__main__":
     # Only for running this app via python directly.  This is ignored if you
     # run it through mod_wsgi.
-    app.run(host='0.0.0.0')
+    app.run(host='127.0.0.1')
