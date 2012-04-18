@@ -320,10 +320,15 @@ def delete_record(domainname=None, recordid=None):
 
     return redirect("/domains/%s" % domainname)
 
-@app.route("/account", methods=['POST'])
+@app.route("/account", methods=['GET','POST'])
 def change_accountId():
     """Handles setting the accountId from the Nav Bar"""
 
+    # Handle a blank GET request to reset the accountId
+    if request.method == 'GET':
+        session.pop('accountId', None) # Remove the accountId from the session
+        return redirect("/domains")
+        
     accountId = request.form['accountId']
 
     ### TODO: VALIDATE!! (numeric, length, etc?)
