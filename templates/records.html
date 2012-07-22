@@ -2,10 +2,10 @@
     <thead>
     <tr>
         <th>ID</th>
-        <th>Type</th>
         <th>Name</th>
-        <th>Data</th>
+        <th>Type</th>
         <th>Priority</th>
+        <th>Data</th>
         <th>Comment</th>
         <th>TTL</th>
         <th>&nbsp;</th>
@@ -19,23 +19,20 @@
             {{ record.id }}
         </td>
         <td>
-            {{ record.type }}
+            {{ record.name }}
         </td>
         <td>
-            {{ record.name }}
+            {{ record.type }}
+        <td>
+        {% if record.type == "MX" %}
+            {{ record.priority }}
+        {% else %}
+            -
+        {% endif %}
         </td>
         <td>
             <input type="text" name="data" value="{{ record.data }}" class="span3">
         </td>
-        {% if record.type == "MX" %}
-        <td>
-            {{ record.priority }}
-        </td>
-        {% else %}
-        <td>
-            -
-        </td>
-        {% endif %}
         <td>
             {% if record.comment %}
                 {{ record.comment }}
