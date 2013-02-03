@@ -73,8 +73,9 @@ def index(domainname=None):
     # limits_resp = g.raxdns.make_request('GET', ['limits'])
     # limits = json.loads(limits_resp.read())
 
-    return render_template('index.html', domainobj=domain, domainname=domainname,
-        domainlist=domainlist, domaincomment=domaincomment, records=records)
+    return render_template('index.html', domainobj=domain,
+                           domainname=domainname, domainlist=domainlist,
+                           domaincomment=domaincomment, records=records)
 
 
 @app.route("/domains/add", methods=['POST'])
@@ -83,7 +84,7 @@ def add_domain():
 
     # Set AccountID (from session)
     setAccount()
-    
+
     # Find out the name of the domain we're adding
     domain = request.form['domain']
 
@@ -98,6 +99,7 @@ def add_domain():
     flash("Domain added: %s" % domain)
 
     return redirect("/domains/%s" % domain)
+
 
 @app.route("/domains/duplicate", methods=['POST'])
 def duplicate_domain():
@@ -247,7 +249,7 @@ def add_record(domainname=None):
     domain = g.raxdns.get_domain(name=domainname)
 
     # Get the form data out of an immutable dict
-    formvars = {x:y[0] for x, y in dict(request.form).iteritems()}
+    formvars = {x: y[0] for x, y in dict(request.form).iteritems()}
 
     # Does the data from the form end with the domainname? If it doesn't the
     # user probably entered a partial name rather than a FQDN. Append
@@ -320,7 +322,8 @@ def delete_record(domainname=None, recordid=None):
 
     return redirect("/domains/%s" % domainname)
 
-@app.route("/account", methods=['GET','POST'])
+
+@app.route("/account", methods=['GET', 'POST'])
 def change_accountId():
     """Handles setting the accountId from the Nav Bar"""
 
@@ -328,7 +331,7 @@ def change_accountId():
     if request.method == 'GET':
         session.pop('accountId', None) # Remove the accountId from the session
         return redirect("/domains")
-        
+
     accountId = request.form['accountId']
 
     ### TODO: VALIDATE!! (numeric, length, etc?)
@@ -342,21 +345,23 @@ def change_accountId():
 
 # No Application route, this is an internal function
 def getAccount():
-    """Internal Function to get the accountId (wrapper to python-clouddns function)"""
+    """Internal Function to get the accountId (wrapper to python-clouddns
+       function)"""
 
     ## Try the proper method, but fallback to a local implementation
     try:
         accountId = g.raxdns.get_accountId()
     except AttributeError:
         ## work around for missing get_accountId()
-        (baseUri, sep , accountId) = g.raxdns.uri.rstrip('/').rpartition('/')
+        (baseUri, sep, accountId) = g.raxdns.uri.rstrip('/').rpartition('/')
         #app.logger.debug('Local Implementation get_account: %s' % accountId)
     return accountId
 
 
 # No Application route, this is an internal function
 def setAccount():
-    """Internal Function to set the accountId in g.raxdns (wrapper to python-clouddns function)"""
+    """Internal Function to set the accountId in g.raxdns (wrapper to
+       python-clouddns function)"""
 
     # Figure out the accountId
     if 'accountId' in session:
@@ -374,11 +379,12 @@ def setAccount():
         g.raxdns.set_account(accountId)
     except AttributeError:
         # This works around not having the method by implementing it here, but
-        # I do not think that it is "proper" to be tweaking object attributes from
-        # outside the object
-        (baseUri, sep , oldAccountId) = g.raxdns.uri.rstrip('/').rpartition('/')
+        # I do not think that it is "proper" to be tweaking object attributes
+        # from outside the object
+        (baseUri, sep, oldAccountId) = g.raxdns.uri.rstrip('/').rpartition('/')
         g.raxdns.uri = baseUri + '/' + accountId
-        #app.logger.debug('Local Implementation set_account(%s): %s' % (accountId, g.raxdns.uri))
+        #app.logger.debug('Local Implementation set_account(%s): %s' % (
+        #                   accountId, g.raxdns.uri))
     return
 
 
