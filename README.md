@@ -1,4 +1,4 @@
-*DEPRECATED* Use https://mycloud.rackspace.com/ instead.  There's a great DNS interface there. :)
+**DEPRECATED** Use https://mycloud.rackspace.com/ instead.  There's a great DNS interface there. :)
 
 # Rackspace Cloud DNS GUI
 ## A web front-end to Rackspace's Cloud DNS service
